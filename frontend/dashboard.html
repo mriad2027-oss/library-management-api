@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard — Bibliotheca</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<button class="mobile-nav-toggle" id="nav-toggle">☰</button>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">📚 Bibliotheca</div>
+      <div class="logo-sub">Library System</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item active" data-page="overview"><span class="nav-icon">⊞</span> Overview</a>
+      <a class="nav-item" data-page="books"><span class="nav-icon">📖</span> Books</a>
+      <a class="nav-item" data-page="borrows"><span class="nav-icon">🔄</span> Borrows</a>
+      <div class="nav-section-label" id="admin-section" style="display:none">Admin</div>
+      <a class="nav-item admin-only" data-page="manage" style="display:none"><span class="nav-icon">⚙</span> Manage Books</a>
+      <a class="nav-item admin-only" data-page="users" style="display:none"><span class="nav-icon">👥</span> All Borrows</a>
+      <a class="nav-item admin-only" data-page="monitoring" style="display:none"><span class="nav-icon">📊</span> Monitoring</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-username">—</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+        <button class="btn-icon" id="logout-btn" title="Logout" style="font-size:1.1rem">⎋</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+
+    <!-- ── OVERVIEW PAGE ── -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <h1>Overview</h1>
+        <p>Welcome back, <span id="welcome-name">—</span></p>
+      </div>
+      <div class="stats-row" id="overview-stats">
+        <div class="stat-card"><div class="stat-label">Total Books</div><div class="stat-value skeleton" style="height:2.2rem;width:60px" id="stat-books">—</div></div>
+        <div class="stat-card teal"><div class="stat-label">Available Books</div><div class="stat-value" id="stat-available">—</div></div>
+        <div class="stat-card amber"><div class="stat-label">Active Borrows</div><div class="stat-value" id="stat-active">—</div></div>
+        <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value" id="stat-overdue">—</div></div>
+        <div class="stat-card green"><div class="stat-label">My Borrows</div><div class="stat-value" id="stat-mine">—</div></div>
+      </div>
+
+      <!-- Recent borrows -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 My Recent Borrows</h3>
+          <button class="btn btn-sm btn-ghost" id="refresh-overview">↺ Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book</th><th>Borrowed</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="recent-borrows-body"><tr><td colspan="5" class="text-muted" style="padding:20px;text-align:center">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOOKS PAGE ── -->
+    <div class="page" id="page-books">
+      <div class="page-header">
+        <h1>Book Catalogue</h1>
+        <p>Browse and borrow books from the library</p>
+      </div>
+      <div class="page-toolbar">
+        <div class="search-box">
+          <input type="text" id="book-search" placeholder="Search by title or author..."/>
+        </div>
+        <select class="filter-select" id="book-avail-filter">
+          <option value="">All Books</option>
+          <option value="available">Available Only</option>
+        </select>
+      </div>
+      <div class="books-grid" id="books-grid"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+      <div class="pagination" id="books-pagination"></div>
+    </div>
+
+    <!-- ── MY BORROWS PAGE ── -->
+    <div class="page" id="page-borrows">
+      <div class="page-header">
+        <h1>My Borrows</h1>
+        <p>Your borrowing history</p>
+      </div>
+      <div class="page-toolbar">
+        <select class="filter-select" id="borrow-status-filter">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="returned">Returned</option>
+          <option value="overdue">Overdue</option>
+        </select>
+        <button class="btn btn-sm btn-ghost ml-auto" id="refresh-borrows">↺ Refresh</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book</th><th>Borrowed</th><th>Due Date</th><th>Returned</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="borrows-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination" id="borrows-pagination"></div>
+    </div>
+
+    <!-- ── MANAGE BOOKS (ADMIN) ── -->
+    <div class="page" id="page-manage">
+      <div class="page-header">
+        <h1>Manage Books</h1>
+        <p>Add, edit or remove books from the catalogue</p>
+      </div>
+      <div class="page-toolbar">
+        <div class="search-box">
+          <input type="text" id="manage-search" placeholder="Search books..."/>
+        </div>
+        <button class="btn btn-primary" id="add-book-btn">＋ Add Book</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Author</th><th>ISBN</th><th>Year</th><th>Copies</th><th>Available</th><th>Actions</th></tr></thead>
+            <tbody id="manage-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination" id="manage-pagination"></div>
+    </div>
+
+    <!-- ── ALL BORROWS (ADMIN) ── -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <h1>All Borrow Records</h1>
+        <p>Admin view of every borrow in the system</p>
+      </div>
+      <div class="page-toolbar">
+        <select class="filter-select" id="all-borrow-filter">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="returned">Returned</option>
+          <option value="overdue">Overdue</option>
+        </select>
+        <button class="btn btn-sm btn-ghost ml-auto" id="refresh-all-borrows">↺ Refresh</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Book</th><th>Borrowed</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="all-borrows-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination" id="all-borrows-pagination"></div>
+    </div>
+
+    <!-- ── MONITORING (ADMIN) ── -->
+    <div class="page" id="page-monitoring">
+      <div class="page-header">
+        <h1>Monitoring Dashboard</h1>
+        <p>Live metrics • auto-refreshes every 10s</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Requests</div><div class="stat-value" id="m-total">—</div><div class="stat-sub" id="m-recent-req">— /60s</div></div>
+        <div class="stat-card teal"><div class="stat-label">Avg Response</div><div class="stat-value" id="m-avg">—</div><div class="stat-sub">ms</div></div>
+        <div class="stat-card amber"><div class="stat-label">Error Rate</div><div class="stat-value" id="m-err">—</div><div class="stat-sub">% last 60s</div></div>
+        <div class="stat-card green"><div class="stat-label">Auth Success</div><div class="stat-value" id="m-auth-ok">—</div><div class="stat-sub" id="m-auth-fail">— failures</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px">
+        <div class="card">
+          <div class="card-header"><h3>🔥 Top Endpoints</h3></div>
+          <div class="card-body" id="m-endpoints">—</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📊 Status Codes</h3></div>
+          <div class="card-body" id="m-status">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>📋 Recent Errors</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Method</th><th>Endpoint</th><th>Status</th></tr></thead>
+            <tbody id="m-errors"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <div class="card-header"><h3>📝 Application Logs</h3></div>
+        <div id="m-logs" style="background:#0a0c14;border-radius:8px;padding:14px;font-family:monospace;font-size:0.75rem;max-height:280px;overflow-y:auto;line-height:1.7"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Add / Edit Book Modal ── -->
+<div class="modal" id="book-modal">
+  <div class="modal-backdrop"></div>
+  <div class="modal-box">
+    <div class="modal-title" id="book-modal-title">Add Book</div>
+    <input type="hidden" id="book-id"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Title *</label>
+        <input class="form-control" type="text" id="book-title" placeholder="Book title"/>
+      </div>
+      <div class="form-group">
+        <label>Author *</label>
+        <input class="form-control" type="text" id="book-author" placeholder="Author name"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>ISBN</label>
+        <input class="form-control" type="text" id="book-isbn" placeholder="9780000000000"/>
+      </div>
+      <div class="form-group">
+        <label>Published Year</label>
+        <input class="form-control" type="number" id="book-year" placeholder="2024" min="1000" max="2100"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea class="form-control" id="book-desc" rows="3" placeholder="Short description..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Total Copies *</label>
+      <input class="form-control" type="number" id="book-copies" value="1" min="1"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="import('./js/utils.js').then(m=>m.closeModal('book-modal'))">Cancel</button>
+      <button class="btn btn-primary" id="book-save-btn">Save Book</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
