@@ -19,6 +19,9 @@ COPY --from=builder /install /usr/local
 
 # Copy application code
 COPY app/ ./app/
+COPY tests/ ./tests/
+COPY conftest.py .
+COPY pytest.ini .
 COPY .env.docker .env
 
 # Create logs directory
